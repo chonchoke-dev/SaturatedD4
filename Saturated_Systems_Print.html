@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saturated Transfer Systems - Simplified View</title>
+    <style>
+        :root {
+            --primary: #2c5282;
+            --secondary: #9b2c2c;
+            --bg: #f8fafc;
+            --text: #2d3748;
+            --border: #e2e8f0;
+            --card-bg: #ffffff;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.4;
+        }
+
+        .no-print { margin-bottom: 20px; text-align: center; }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+        .btn:hover { background-color: #2b6cb0; transform: translateY(-1px); }
+
+        header {
+            max-width: 1200px;
+            margin: 0 auto 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 { margin: 0; color: var(--primary); font-size: 1.5rem; }
+        .summary { color: #718096; font-size: 0.9rem; }
+
+        /* Grid Layout */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 8px;
+        }
+
+        .system-id { font-weight: 700; color: var(--primary); }
+        .system-type {
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+        .type-saturated { background: #ebf8ff; color: #2b6cb0; }
+        .type-bisaturated { background: #faf5ff; color: #6b46c1; }
+
+        /* SVG Visualization */
+        .viz-container {
+            width: 100%;
+            height: 280px;
+            background: #fff;
+            position: relative;
+        }
+
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .node-label {
+            font-size: 11px;
+            font-family: serif;
+            fill: #1a202c;
+            text-anchor: middle;
+            font-weight: 600;
+        }
+
+        .node-circle {
+            fill: #fff;
+            stroke: #4a5568;
+            stroke-width: 1.5;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            header, .no-print { display: none !important; }
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+            .card {
+                break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #cbd5e0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>Saturated Transfer Systems (Grouped by Conjugates)</h1>
+            <div class="summary" id="stats">Loading data...</div>
+        </div>
+        <button class="btn no-print" onclick="window.print()">Print Visual Sheet</button>
+    </header>
+
+    <div class="gallery" id="gallery">
+        <!-- Cards inserted here -->
+    </div>
+
+    <!-- Data Import -->
+    <script src="data.js"></script>
+    <script>
+        const SCALE_X = 50; 
+        const SCALE_Y = 60;
+        const OFFSET_X = 180;
+        const OFFSET_Y = 240;
+
+        let classPositions = {};
+        let classEdges = [];
+
+        function parsePos(posStr) {
+            if (!posStr) return { x: 0, y: 0 };
+            const match = posStr.match(/\(([\d.-]+),\s*([\d.-]+)\)/);
+            if (match) return { x: parseFloat(match[1]), y: parseFloat(match[2]) };
+            return { x: 0, y: 0 };
+        }
+
+        function preprocess() {
+            if (typeof data === 'undefined') return;
+
+            // 1. Calculate Conjugacy Class Positions (Average of members)
+            data.conjugacy_classes.forEach((clr, cIdx) => {
+                let sumX = 0, sumY = 0, count = 0;
+                data.subgroup_conjugates.forEach((cc, sIdx) => {
+                    if (cc === cIdx) {
+                        const p = parsePos(data.subgroups[sIdx].pos);
+                        sumX += p.x;
+                        sumY += p.y;
+                        count++;
+                    }
+                });
+                classPositions[cIdx] = {
+                    x: (sumX / count) * SCALE_X + OFFSET_X,
+                    y: OFFSET_Y - (sumY / count) * SCALE_Y
+                };
+            });
+
+            // 2. Aggregate Lattice Edges
+            const edgeSet = new Set();
+            data.lattice.forEach(edge => {
+                const c1 = data.subgroup_conjugates[edge.from];
+                const c2 = data.subgroup_conjugates[edge.to];
+                if (c1 !== c2) edgeSet.add(`${c1}->${c2}`);
+            });
+            classEdges = Array.from(edgeSet).map(s => {
+                const [from, to] = s.split('->').map(Number);
+                return { from, to };
+            });
+        }
+
+        function createSVG(system) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 10 360 280');
+
+            // Markers
+            svg.innerHTML = `
+                <defs>
+                    <marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+                        <polygon points="0 0, 6 3, 0 6" fill="#e53e3e" />
+                    </marker>
+                </defs>
+            `;
+
+            // Draw Base Lattice (Gray lines between classes)
+            classEdges.forEach(edge => {
+                const p1 = classPositions[edge.from];
+                const p2 = classPositions[edge.to];
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+                line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
+                line.setAttribute('stroke', '#cbd5e0');
+                line.setAttribute('stroke-width', '1');
+                svg.appendChild(line);
+            });
+
+            // Draw Transfer Arrows (Red bold lines between classes)
+            const transferSet = new Set();
+            system.edges.forEach(edgeIdx => {
+                const edge = data.lattice[edgeIdx];
+                const c1 = data.subgroup_conjugates[edge.from];
+                const c2 = data.subgroup_conjugates[edge.to];
+                if (c1 !== c2) transferSet.add(`${c1}->${c2}`);
+            });
+
+            transferSet.forEach(s => {
+                const [f, t] = s.split('->').map(Number);
+                const p1 = classPositions[f];
+                const p2 = classPositions[t];
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', p1.x); line.setAttribute('y1', p1.y);
+                line.setAttribute('x2', p2.x); line.setAttribute('y2', p2.y);
+                line.setAttribute('stroke', '#e53e3e');
+                line.setAttribute('stroke-width', '2.5');
+                line.setAttribute('marker-end', 'url(#arrow)');
+                svg.appendChild(line);
+            });
+
+            // Draw Nodes (One per class)
+            data.conjugacy_classes.forEach((clr, i) => {
+                const p = classPositions[i];
+                
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y);
+                circle.setAttribute('r', '5');
+                circle.setAttribute('class', 'node-circle');
+                svg.appendChild(circle);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', p.x); text.setAttribute('y', p.y + 15);
+                text.setAttribute('class', 'node-label');
+                // Use class label, prefix with size if > 1
+                const displayLabel = clr.size > 1 ? `${clr.label}(${clr.size})` : clr.label;
+                text.textContent = displayLabel;
+                svg.appendChild(text);
+            });
+
+            return svg;
+        }
+
+        function init() {
+            if (typeof data === 'undefined') return;
+            preprocess();
+
+            const gallery = document.getElementById('gallery');
+            const stats = document.getElementById('stats');
+
+            const saturated = data.transfers.filter(t => 
+                t.type === 'Saturated' || t.type === 'Bisaturated'
+            );
+
+            stats.textContent = `Displaying ${saturated.length} Saturated Transfer Systems (Simplified: conjugates grouped).`;
+
+            saturated.forEach(sys => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="system-id">System #${sys.id}</span>
+                        <span class="system-type type-${sys.type.toLowerCase()}">${sys.type}</span>
+                    </div>
+                `;
+
+                const viz = document.createElement('div');
+                viz.className = 'viz-container';
+                viz.appendChild(createSVG(sys));
+                card.appendChild(viz);
+
+                gallery.appendChild(card);
+            });
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>

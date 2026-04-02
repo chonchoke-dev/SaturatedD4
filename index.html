@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transfer System Explorer</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="data.js" defer></script>
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <header>
+                <h1>Transfer System Explorer</h1>
+                <p>Interactive Visualization of Group Sublattices</p>
+            </header>
+            
+            <div class="filters">
+                <h3>Filter Type</h3>
+                <div class="filter-group">
+                    <button class="filter-btn active" data-filter="all">All <span id="count-all"></span></button>
+                    <button class="filter-btn" data-filter="Saturated">Saturated <span id="count-sat"></span></button>
+                    <button class="filter-btn" data-filter="Cosaturated">Cosaturated <span id="count-cosat"></span></button>
+                    <button class="filter-btn" data-filter="Bisaturated">Bisaturated <span id="count-bisat"></span></button>
+                </div>
+
+                <!-- View Options -->
+                <div class="view-options" style="margin-top: 10px; display: flex; align-items: center; gap: 10px;">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="group-toggle" checked>
+                        <span class="slider"></span>
+                    </label>
+                    <span class="toggle-label">Group Conjugates</span>
+                </div>
+            </div>
+
+            <div class="list-container">
+                <ul id="system-list">
+                    <!-- Systems will be populated here -->
+                </ul>
+            </div>
+        </aside>
+
+        <main class="viewer">
+            <div id="status-bar">
+                <span id="current-id">#0</span>
+                <span id="current-type" class="badge">Normal</span>
+            </div>
+            <div id="canvas-container">
+                <svg id="lattice-svg" viewBox="0 0 1000 800">
+                    <defs>
+                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#cbd5e0" />
+                        </marker>
+                        <marker id="arrowhead-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                            <polygon points="0 0, 10 3.5, 0 7" fill="#9b2c2c" />
+                        </marker>
+                    </defs>
+                    <g id="edges-layer"></g>
+                    <g id="transfer-edges-layer"></g>
+                    <g id="nodes-layer"></g>
+                </svg>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,310 @@
+:root {
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --sidebar-bg: #ffffff;
+    --text-primary: #1a202c;
+    --text-secondary: #4a5568;
+    --accent: #2c5282; /* Deep Academic Blue */
+    --red: #9b2c2c; /* Deep Academic Red */
+    --border-color: #e2e8f0;
+    --gray-edge: rgba(0, 0, 0, 0.1);
+    --shadow-subtle: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    overflow: hidden;
+    height: 100vh;
+    line-height: 1.5;
+}
+
+h1, h2, h3, .system-id {
+    font-family: 'Charter', 'Georgia', 'Cambria', 'Times New Roman', serif;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+.sidebar {
+    width: 320px;
+    background-color: var(--sidebar-bg);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+}
+
+.sidebar.wide {
+    width: 400px;
+}
+
+header h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+}
+
+header p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    margin-bottom: 32px;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Filters */
+.filters h3 {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-family: var(--font-sans); /* Use sans for small UI labels */
+}
+
+.filter-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.filter-btn {
+    background: #fff;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.filter-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #f0f7ff;
+}
+
+.filter-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+    box-shadow: 0 2px 4px rgba(44, 82, 130, 0.2);
+}
+
+/* View Options / Toggle */
+.view-options {
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.toggle-switch {
+    width: 32px;
+    height: 18px;
+}
+
+.slider {
+    background-color: #cbd5e0;
+    border: none;
+}
+
+.slider:before {
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+}
+
+input:checked + .slider {
+    background-color: var(--accent);
+}
+
+.toggle-label {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+}
+
+.detail-container {
+    margin-top: 24px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-status {
+    margin-bottom: 24px;
+}
+
+.grid-display {
+    flex: 1;
+    min-height: 300px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* System List */
+.list-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-top: 20px;
+    padding-right: 4px;
+}
+
+.list-container::-webkit-scrollbar {
+    width: 4px;
+}
+.list-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 10px;
+}
+
+.system-item {
+    padding: 14px;
+    background: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-subtle);
+}
+
+.system-item:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.system-item.active {
+    border-left: 4px solid var(--accent);
+    background: #f0f7ff;
+}
+
+.system-id {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.system-type-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px; /* Square dots for academic look */
+}
+
+.type-Saturated { background: #2f855a; }
+.type-Cosaturated { background: #c53030; }
+.type-Bisaturated { background: #6b46c1; }
+
+/* Main Viewer */
+.viewer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #fff;
+    background-image: 
+        radial-gradient(var(--border-color) 0.5px, transparent 0.5px);
+    background-size: 20px 20px; /* Subtle grid background */
+}
+
+#status-bar {
+    padding: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 10;
+}
+
+#current-id {
+    font-family: 'Charter', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #edf2f7;
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+}
+
+#canvas-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+}
+
+svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.05));
+}
+
+/* SVG Elements */
+.node-circle {
+    fill: #fff;
+    stroke: #334155;
+    stroke-width: 1.5px;
+}
+
+.node-label {
+    fill: #334155;
+    font-family: 'Charter', 'Georgia', serif;
+    font-size: 16px;
+    font-weight: 600;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+}
+
+.edge-path {
+    stroke: #cbd5e0;
+    stroke-width: 1px;
+}
+
+.transfer-edge-path {
+    stroke: var(--red);
+    stroke-width: 2.5px;
+    stroke-linecap: round;
+    opacity: 0.8;
+}
+
+/* Animation */
+@keyframes draw {
+    from { stroke-dashoffset: 1000; }
+    to { stroke-dashoffset: 0; }
+}
